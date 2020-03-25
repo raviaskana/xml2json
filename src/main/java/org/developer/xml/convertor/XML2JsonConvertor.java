@@ -1,6 +1,8 @@
 package org.developer.xml.convertor;
 
+import org.apache.log4j.Logger;
 import org.developer.exception.XMLConversionException;
+import org.developer.util.Constants;
 import org.json.JSONObject;
 import org.json.XML;
 
@@ -17,24 +19,31 @@ import java.util.stream.Collectors;
 
 public class XML2JsonConvertor implements XMLConvertor {
 
-    public static final int PRETTY_PRINT_INDENT_FACTOR = 4;
+    final static Logger logger = Logger.getLogger(XML2JsonConvertor.class);
+
 
     @Override
     public void convertXML(String folder) {
+        logger.info("Begin :: convertXML");
        File XMLFolder = new File(folder);
         try {
             transformXMLs(XMLFolder);
             convert2JSON(XMLFolder);
-        } catch (FileNotFoundException e) {
-            throw new XMLConversionException("FileNotFoundException while converting XML",e);
-        } catch (TransformerException e) {
-            throw new XMLConversionException("TransformerException while converting XML",e);
-        } catch (IOException e) {
-            throw new XMLConversionException("IOException while converting XML",e);
+        } catch (FileNotFoundException fnfe) {
+            logger.fatal(fnfe);
+            throw new XMLConversionException("FileNotFoundException while converting XML",fnfe);
+        } catch (TransformerException te) {
+            logger.fatal(te);
+            throw new XMLConversionException("TransformerException while converting XML",te);
+        } catch (IOException ioe) {
+            logger.fatal(ioe);
+            throw new XMLConversionException("IOException while converting XML",ioe);
         }
+        logger.info("End :: convertXML");
     }
 
     private void transformXMLs(File XMLFolder) throws IOException, TransformerException {
+        logger.info("Begin :: transformXMLs");
         TransformerFactory transFactory = TransformerFactory.newInstance();
         URL xsltURL = this.getClass().getClassLoader().getResource("incidents.xsl");
         Source xsltSource = new StreamSource(xsltURL.openStream(),
@@ -47,28 +56,31 @@ public class XML2JsonConvertor implements XMLConvertor {
                 OutputStream outputStream = new FileOutputStream(new File(XMLFolder,"transformed"+file.getName()));
                 transformer.transform(new StreamSource(dataStream),
                         new StreamResult(outputStream));
-            } catch (TransformerConfigurationException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
-                e.printStackTrace();
+            } catch (TransformerConfigurationException tce) {
+                logger.fatal(tce);
+            } catch (FileNotFoundException fnfe) {
+                logger.fatal(fnfe);
+            } catch (TransformerException te) {
+                logger.fatal(te);
             }
         });
+        logger.info("End :: transformXMLs");
     }
 
     private void convert2JSON(File XMLFolder){
+        logger.info("Begin :: convert2JSON");
         Arrays.stream(XMLFolder.listFiles()).filter(file -> file.getName().contains("transformed")).forEach(file -> {
             try {
                 String xmlFilePath = file.getAbsolutePath();
                 Path xmlPath = Paths.get(xmlFilePath);
                 String XML_STRING = Files.lines(xmlPath).collect(Collectors.joining("\n"));
                 JSONObject xmlJSONObj = XML.toJSONObject(XML_STRING, false);
-                String jsonPrettyPrintString = xmlJSONObj.getJSONObject("loc").toString(PRETTY_PRINT_INDENT_FACTOR);
-                System.out.println("PRINTING STRING :::::::::::::::::::::" + jsonPrettyPrintString);
-            } catch (IOException e) {
-                e.printStackTrace();
+                String jsonPrettyPrintString = xmlJSONObj.getJSONObject("loc").toString(Constants.PRETTY_PRINT_INDENT_FACTOR);
+                logger.debug("JSON>>>>>>" + jsonPrettyPrintString);
+            } catch (IOException ioe) {
+                logger.fatal(ioe);
             }
         });
+        logger.info("End :: convert2JSON");
     }
 }

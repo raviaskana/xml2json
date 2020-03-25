@@ -1,5 +1,6 @@
 package org.developer.downloader;
 
+import org.apache.log4j.Logger;
 import org.developer.exception.DownloadException;
 
 import java.io.*;
@@ -13,8 +14,11 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 public class URLDownload implements IDownload {
+    final static Logger logger = Logger.getLogger(URLDownload.class);
+
     @Override
     public void downloadFile(String URL, String destination) {
+        logger.info("Begin:: downloadFile");
             try{
                 java.net.URL downloadURL = new URL(URL);
                 String filename = "incidents.xml.gz";
@@ -24,16 +28,21 @@ public class URLDownload implements IDownload {
                 fileOutputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
                 extractFiles(destination);
             } catch (FileNotFoundException fnfe) {
+                logger.fatal(fnfe);
                 throw new DownloadException("FileNotFoundException While downloading a file",fnfe);
             } catch (MalformedURLException mfue) {
+                logger.fatal(mfue);
                 throw new DownloadException("MalformedURLException While downloading a file",mfue);
             } catch (IOException ioe) {
+                logger.fatal(ioe);
                 throw new DownloadException("IOException While downloading a file",ioe);
             }
-
+        logger.info("End:: downloadFile");
     }
 
     private void extractFiles(String destination){
+        logger.info("Begin:: extractFiles");
+
         File compressedFolder = new File(destination);
         List<File> files = Arrays.stream(compressedFolder.listFiles()).filter(file -> file.isFile()
                             && file.getName().endsWith(".gz")).collect(Collectors.toList());
@@ -48,10 +57,10 @@ public class URLDownload implements IDownload {
                     fos.write(buffer, 0, length);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                //Ignore exception
+                logger.fatal(e);
             }
-
         });
+
+        logger.info("End:: extractFiles");
     }
 }
