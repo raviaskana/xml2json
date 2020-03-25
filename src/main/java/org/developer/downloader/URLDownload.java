@@ -2,6 +2,7 @@ package org.developer.downloader;
 
 import org.apache.log4j.Logger;
 import org.developer.exception.DownloadException;
+import org.developer.util.Constants;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -21,8 +22,7 @@ public class URLDownload implements IDownload {
         logger.info("Begin:: downloadFile");
             try{
                 java.net.URL downloadURL = new URL(URL);
-                String filename = "incidents.xml.gz";
-                File download = new File(destination, filename);
+                File download = new File(destination, Constants.FILENAME);
                 ReadableByteChannel rbc = Channels.newChannel(downloadURL.openStream());
                 FileOutputStream fileOutputStream = new FileOutputStream(download);
                 fileOutputStream.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);

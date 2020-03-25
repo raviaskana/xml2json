@@ -45,7 +45,7 @@ public class XML2JsonConvertor implements XMLConvertor {
     private void transformXMLs(File XMLFolder) throws IOException, TransformerException {
         logger.info("Begin :: transformXMLs");
         TransformerFactory transFactory = TransformerFactory.newInstance();
-        URL xsltURL = this.getClass().getClassLoader().getResource("incidents.xsl");
+        URL xsltURL = this.getClass().getClassLoader().getResource(Constants.XSLT);
         Source xsltSource = new StreamSource(xsltURL.openStream(),
                 xsltURL.toExternalForm());
         Transformer transformer = transFactory.newTransformer(
