@@ -41,13 +41,14 @@ public class URLDownload implements IDownload {
             try {
                 FileInputStream fis = new FileInputStream(file);
                 GZIPInputStream gzis = new GZIPInputStream(fis);
-                FileOutputStream fos = new FileOutputStream(file.getName().replace(".gz",""));
+                FileOutputStream fos = new FileOutputStream(new File(destination,file.getName().replace(".gz","")));
                 byte[] buffer = new byte[1024];
                 int length;
                 while ((length = gzis.read(buffer)) > 0) {
                     fos.write(buffer, 0, length);
                 }
             } catch (IOException e) {
+                e.printStackTrace();
                 //Ignore exception
             }
 

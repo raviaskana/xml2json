@@ -44,7 +44,7 @@ public class XML2JsonConvertor implements XMLConvertor {
         Arrays.stream(XMLFolder.listFiles()).filter(file -> file.isFile() && file.getName().endsWith("incidents.xml")).forEach(file -> {
             try {
                 final InputStream dataStream = new FileInputStream(file);
-                OutputStream outputStream = new FileOutputStream("transformed"+file.getName());
+                OutputStream outputStream = new FileOutputStream(new File(XMLFolder,"transformed"+file.getName()));
                 transformer.transform(new StreamSource(dataStream),
                         new StreamResult(outputStream));
             } catch (TransformerConfigurationException e) {
